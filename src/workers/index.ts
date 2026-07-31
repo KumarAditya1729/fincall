@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import http from "http";
 import os from "os";
 import { startQueueListener } from "./queue";
 
@@ -24,6 +25,15 @@ let isShuttingDown = false;
 
 async function boot() {
   console.log(`[Worker] Booting on ${hostname}:${pid}`);
+
+  // Start a dummy HTTP server to satisfy Render's port scan check for Web Services
+  const port = process.env.PORT || 10000;
+  http.createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.end("OK");
+  }).listen(port, () => {
+    console.log(`[Worker] Health check server listening on port ${port}`);
+  });
 
   // Register worker
   const { data, error } = await supabaseAdmin
