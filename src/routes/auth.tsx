@@ -36,7 +36,7 @@ import {
   signInWithPassword,
   signUpWithPassword,
 } from "@/features/auth/services/authService";
-import { lovable } from "@/integrations/lovable/index";
+
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
@@ -145,22 +145,24 @@ function AuthPage() {
     }
   }
 
-  async function onGoogle() {
-    setPending(true);
+  const onGoogle = async () => {
     try {
-      const result = await lovable.auth.signInWithOAuth("google", {
-        redirect_uri: window.location.origin,
+      setPending(true);
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/`,
+        },
       });
-      if (result.error) {
-        toast.error("Google sign-in failed. Please try again.");
-        return;
+      if (error) {
+        toast.error(error.message);
       }
-      if (result.redirected) return;
-      await afterSignIn();
+    } catch (e: any) {
+      toast.error(e.message || "An error occurred");
     } finally {
       setPending(false);
     }
-  }
+  };
 
   return (
     <div className="flex min-h-dvh items-center justify-center bg-background px-4 py-10">

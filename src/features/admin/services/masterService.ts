@@ -55,10 +55,13 @@ function codeFromLabel(label: string): string {
     .slice(0, 60);
 }
 
-function applyStatus<T extends { is: (c: string, v: null) => T; not: (c: string, o: string, v: null) => T; eq: (c: string, v: boolean) => T }>(
-  query: T,
-  status: MasterFilters["status"],
-): T {
+function applyStatus<
+  T extends {
+    is: (c: string, v: null) => T;
+    not: (c: string, o: string, v: null) => T;
+    eq: (c: string, v: boolean) => T;
+  },
+>(query: T, status: MasterFilters["status"]): T {
   if (status === "deleted") return query.not("deleted_at", "is", null);
   return query.is("deleted_at", null).eq("is_active", status === "active");
 }

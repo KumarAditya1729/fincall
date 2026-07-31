@@ -32,7 +32,9 @@ export function AdminGuard({ children, roles = [ROLES.SUPER_ADMIN] }: AdminGuard
   }
 
   if (error) {
-    return <ErrorState error={error} onRetry={() => void refetch()} title="Couldn't load your access" />;
+    return (
+      <ErrorState error={error} onRetry={() => void refetch()} title="Couldn't load your access" />
+    );
   }
 
   if (!hasRole(user, ...roles)) {

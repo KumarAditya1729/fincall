@@ -63,8 +63,8 @@ export function DataTable<T>({
 }: DataTableProps<T>) {
   const showRows = !isLoading && !error;
   const pageIds = rows.map((row) => rowKey(row));
-  const allSelected = pageIds.length > 0 && pageIds.every((id) => selection?.selectedIds.includes(id));
-
+  const allSelected =
+    pageIds.length > 0 && pageIds.every((id) => selection?.selectedIds.includes(id));
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-card shadow-[var(--shadow-card)]">
@@ -139,7 +139,9 @@ export function DataTable<T>({
                           <TableCell onClick={(event) => event.stopPropagation()}>
                             <Checkbox
                               checked={selection.selectedIds.includes(id)}
-                              onCheckedChange={(checked) => selection.onToggle(id, checked === true)}
+                              onCheckedChange={(checked) =>
+                                selection.onToggle(id, checked === true)
+                              }
                               aria-label={`Select row ${id}`}
                             />
                           </TableCell>
@@ -157,7 +159,6 @@ export function DataTable<T>({
                   })
                 : null}
           </TableBody>
-
         </Table>
       </div>
       {error ? (

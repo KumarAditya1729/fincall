@@ -98,7 +98,6 @@ export const MASTER_KIND_LABELS: Record<string, string> = {
   call_outcome: "Call outcomes",
 };
 
-
 export const AUDIT_ACTIONS = {
   LOGIN: "login",
   LOGOUT: "logout",

@@ -59,6 +59,7 @@ function ImportsPage() {
   const [branchId, setBranchId] = useState("");
   const [fileName, setFileName] = useState("");
   const [parsed, setParsed] = useState<ParsedImport | null>(null);
+  const [file, setFile] = useState<File | null>(null);
   const [historyFilter, setHistoryFilter] = useState<ImportEntity | "all">("all");
   const { page, pageSize, setPage, setPageSize, resetPage } = useTableState();
 
@@ -71,7 +72,7 @@ function ImportsPage() {
   });
 
   const parseMutation = useMutation({
-    mutationFn: (file: File) => parseImportFile(entity, file),
+    mutationFn: (f: File) => parseImportFile(entity, f),
     onSuccess: (result) => setParsed(result),
     onError: (error) => {
       setParsed(null);
@@ -81,22 +82,23 @@ function ImportsPage() {
 
   const importMutation = useMutation({
     mutationFn: () => {
-      if (!parsed) throw new Error("Upload a file first");
+      if (!file) throw new Error("Upload a file first");
       return runImport({
         entity,
-        fileName,
+        fileName: file.name,
         branchId: entity === "customers" ? branchId || null : null,
-        rows: parsed.rows,
+        file,
       });
     },
-    onSuccess: async (result) => {
-      toast.success(`Imported ${result.success} of ${result.total} rows`);
+    onSuccess: async () => {
+      toast.success(`Import job has been queued in the background`);
       setParsed(null);
+      setFile(null);
       setFileName("");
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminImportBatches });
-      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.customers });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "jobs"] });
     },
-    onError: (error) => toastError(error, "The import could not be completed"),
+    onError: (error) => toastError(error, "The import could not be queued"),
   });
 
   const columns = useMemo<DataTableColumn<ImportBatch>[]>(
@@ -175,10 +177,11 @@ function ImportsPage() {
                   type="file"
                   accept=".xlsx,.xls,.csv"
                   onChange={(event) => {
-                    const file = event.target.files?.[0];
-                    if (!file) return;
-                    setFileName(file.name);
-                    parseMutation.mutate(file);
+                    const f = event.target.files?.[0];
+                    if (!f) return;
+                    setFile(f);
+                    setFileName(f.name);
+                    parseMutation.mutate(f);
                   }}
                 />
               </div>

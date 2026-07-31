@@ -124,7 +124,6 @@ export async function saveWorkingHours(
     { onConflict: "branch_id,day_of_week" },
   );
   if (error) throw error;
-
 }
 
 /** Notification templates used for SMS / email / in-app reminders. */
@@ -208,7 +207,13 @@ export const COMPANY_SETTINGS_KEY = "company_profile";
 export const companySettingsSchema = z.object({
   company_name: z.string().trim().min(2, "Company name is required").max(160),
   registered_address: z.string().trim().max(300).optional().or(z.literal("")),
-  support_email: z.string().trim().email("Enter a valid email").max(255).optional().or(z.literal("")),
+  support_email: z
+    .string()
+    .trim()
+    .email("Enter a valid email")
+    .max(255)
+    .optional()
+    .or(z.literal("")),
   support_phone: z
     .string()
     .trim()
@@ -248,15 +253,13 @@ export async function fetchCompanySettings(): Promise<CompanySettings> {
 
 export async function saveCompanySettings(input: CompanySettings): Promise<void> {
   const parsed = companySettingsSchema.parse(input);
-  const { error } = await supabase
-    .from("settings")
-    .upsert(
-      {
-        key: COMPANY_SETTINGS_KEY,
-        value: parsed as never,
-        description: "Company profile and compliance defaults",
-      },
-      { onConflict: "key" },
-    );
+  const { error } = await supabase.from("settings").upsert(
+    {
+      key: COMPANY_SETTINGS_KEY,
+      value: parsed as never,
+      description: "Company profile and compliance defaults",
+    },
+    { onConflict: "key" },
+  );
   if (error) throw error;
 }

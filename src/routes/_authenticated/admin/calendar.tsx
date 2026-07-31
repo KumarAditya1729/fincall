@@ -169,7 +169,9 @@ function CalendarPage() {
     [],
   );
 
-  const years = Array.from({ length: 5 }, (_, index) => String(new Date().getFullYear() - 1 + index));
+  const years = Array.from({ length: 5 }, (_, index) =>
+    String(new Date().getFullYear() - 1 + index),
+  );
 
   return (
     <AppShell>
@@ -233,9 +235,7 @@ function CalendarPage() {
                 <label className="flex items-center gap-2 text-sm">
                   <Switch
                     checked={holiday.is_recurring}
-                    onCheckedChange={(checked) =>
-                      setHoliday({ ...holiday, is_recurring: checked })
-                    }
+                    onCheckedChange={(checked) => setHoliday({ ...holiday, is_recurring: checked })}
                     aria-label="Repeats every year"
                   />
                   Yearly

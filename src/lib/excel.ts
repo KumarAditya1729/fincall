@@ -49,7 +49,9 @@ export async function readSpreadsheet(file: File): Promise<SheetRow[]> {
 
   if (raw.length === 0) throw new Error("The file contains no data rows.");
   if (raw.length > MAX_IMPORT_ROWS) {
-    throw new Error(`The file has ${raw.length} rows. Import at most ${MAX_IMPORT_ROWS} at a time.`);
+    throw new Error(
+      `The file has ${raw.length} rows. Import at most ${MAX_IMPORT_ROWS} at a time.`,
+    );
   }
 
   return raw.map((row) => {

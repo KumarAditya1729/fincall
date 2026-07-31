@@ -88,34 +88,44 @@ const runSchema = z.object({
   entity: z.enum(["customers", "loans"]),
   fileName: z.string().trim().min(1).max(200),
   branchId: z.string().uuid().nullable(),
-  rows: z.array(z.record(z.string(), z.string())).min(1, "The file has no rows").max(MAX_IMPORT_ROWS),
+  file: z.instanceof(File),
 });
 
 export async function runImport(input: {
   entity: ImportEntity;
   fileName: string;
   branchId: string | null;
-  rows: SheetRow[];
-}): Promise<ImportResult> {
+  file: File;
+}): Promise<void> {
   const parsed = runSchema.parse(input);
 
-  if (parsed.entity === "customers") {
-    if (!parsed.branchId) throw new Error("Select the branch these borrowers belong to.");
-    const { data, error } = await supabase.rpc("import_customers", {
-      _rows: parsed.rows as never,
-      _branch_id: parsed.branchId,
-      _file_name: parsed.fileName,
-    });
-    if (error) throw error;
-    return resultSchema.parse(data);
+  if (parsed.entity === "customers" && !parsed.branchId) {
+    throw new Error("Select the branch these borrowers belong to.");
   }
 
-  const { data, error } = await supabase.rpc("import_loans", {
-    _rows: parsed.rows as never,
-    _file_name: parsed.fileName,
+  // Upload file to job_files bucket
+  const fileExt = parsed.fileName.split(".").pop();
+  const storagePath = `${parsed.entity}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("job_files")
+    .upload(storagePath, parsed.file, {
+      cacheControl: "3600",
+      upsert: false,
+    });
+
+  if (uploadError) throw new Error(`File upload failed: ${uploadError.message}`);
+
+  // Enqueue Job
+  const jobType = parsed.entity === "customers" ? "customer_import" : "loan_import";
+  const { error: jobError } = await supabase.from("jobs").insert({
+    type: jobType,
+    priority: "medium",
+    payload: { filePath: storagePath },
+    branch_id: parsed.branchId,
   });
-  if (error) throw error;
-  return resultSchema.parse(data);
+
+  if (jobError) throw new Error(`Failed to queue job: ${jobError.message}`);
 }
 
 export interface ImportBatch {
@@ -136,9 +146,12 @@ export async function fetchImportBatches(
   const from = (pagination.page - 1) * pagination.pageSize;
   let query = supabase
     .from("import_batches")
-    .select("id, entity_type, file_name, total_rows, success_rows, failed_rows, errors, created_at", {
-      count: "exact",
-    })
+    .select(
+      "id, entity_type, file_name, total_rows, success_rows, failed_rows, errors, created_at",
+      {
+        count: "exact",
+      },
+    )
     .is("deleted_at", null)
     .order("created_at", { ascending: false })
     .range(from, from + pagination.pageSize - 1);

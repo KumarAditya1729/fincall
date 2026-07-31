@@ -56,7 +56,11 @@ export function EmployeeFormDialog({
   const [roles, setRoles] = useState<AppRole[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  const branches = useQuery({ queryKey: QUERY_KEYS.branches, queryFn: fetchBranches, enabled: open });
+  const branches = useQuery({
+    queryKey: QUERY_KEYS.branches,
+    queryFn: fetchBranches,
+    enabled: open,
+  });
 
   useEffect(() => {
     if (!open || !employee) return;
@@ -138,9 +142,7 @@ export function EmployeeFormDialog({
                 id="employee-name"
                 value={values.full_name}
                 maxLength={120}
-                onChange={(event) =>
-                  setValues({ ...values, full_name: event.target.value })
-                }
+                onChange={(event) => setValues({ ...values, full_name: event.target.value })}
                 aria-invalid={errors["full_name"] ? true : undefined}
               />
               {errors["full_name"] ? (

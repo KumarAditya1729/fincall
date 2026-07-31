@@ -50,7 +50,8 @@ export const Route = createFileRoute("/_authenticated/admin/masters")({
       { title: "Master Data — Recovera" },
       {
         name: "description",
-        content: "Maintain call outcomes, purposes and other dropdown lists used by recovery teams.",
+        content:
+          "Maintain call outcomes, purposes and other dropdown lists used by recovery teams.",
       },
       { property: "og:title", content: "Master Data — Recovera" },
       {

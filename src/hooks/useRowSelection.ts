@@ -12,7 +12,9 @@ export function useRowSelection() {
 
   const toggleAll = useCallback((ids: string[], checked: boolean) => {
     setSelectedIds((current) =>
-      checked ? [...new Set([...current, ...ids])] : current.filter((value) => !ids.includes(value)),
+      checked
+        ? [...new Set([...current, ...ids])]
+        : current.filter((value) => !ids.includes(value)),
     );
   }, []);
 

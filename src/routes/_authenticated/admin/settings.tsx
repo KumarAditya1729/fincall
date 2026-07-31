@@ -108,9 +108,7 @@ function SettingsPage() {
                     id="company-name"
                     value={values.company_name}
                     maxLength={160}
-                    onChange={(event) =>
-                      setValues({ ...values, company_name: event.target.value })
-                    }
+                    onChange={(event) => setValues({ ...values, company_name: event.target.value })}
                     aria-invalid={errors["company_name"] ? true : undefined}
                   />
                   {errors["company_name"] ? (

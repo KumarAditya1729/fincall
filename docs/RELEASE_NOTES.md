@@ -1,5 +1,23 @@
 # Release Notes
 
+## [Unreleased]
+### Added
+- **Communication Platform**:
+  - Implemented generic notification dispatcher supporting SMS, Email, and WhatsApp.
+  - Added robust Secrets Management abstraction (`SecretsProvider`) preparing for KMS integration.
+  - Implemented Auto-Provider Resolution and Failover (e.g., fallback from Twilio to MSG91).
+  - Added Campaign Launcher to fan out bulk messages (e.g., 50k customers) via background jobs.
+  - Added idempotency keys to guarantee no duplicate notifications on worker retries.
+  - Integrated 100% with the existing Enterprise Background Processing Platform.
+  - Added Admin Dashboard (`/admin/communication`) for Campaigns, Templates, Provider Settings, and Delivery Logs.
+- **Enterprise Background Processing Platform**:
+  - Added generic job queue architecture (`jobs`, `workers`, `job_logs`, `job_failures`).
+  - Added dedicated worker daemon using `npm run worker` to process jobs outside the web server.
+  - Implemented exponential backoff and dead letter queue (DLQ) for failed jobs.
+  - Added Job Dashboard in Admin Panel (`/admin/jobs`) to monitor worker health and job statuses.
+  - Added atomic `dequeue_job` RPC for horizontal scaling.
+  - Refactored Excel Imports (Customers/Loans) to use chunked background processing.
+
 ## 1.0.0 — Commercial release candidate (31 July 2026)
 
 First release positioned as a commercial product for NBFCs and microfinance

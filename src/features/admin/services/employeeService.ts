@@ -82,7 +82,6 @@ export async function fetchEmployees(
   const filtered =
     roleFilter === "all" ? rows : rows.filter((row) => row.roles.includes(roleFilter));
 
-
   return { rows: filtered, total: count ?? 0 };
 }
 

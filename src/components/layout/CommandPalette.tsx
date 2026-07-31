@@ -87,7 +87,8 @@ export function CommandPalette({ open, onOpenChange, user }: CommandPaletteProps
 
   const customers = useQuery({
     queryKey: [...QUERY_KEYS.customers, "palette", search],
-    queryFn: () => fetchCustomers({ search, status: "all", branchId: "all" }, { page: 1, pageSize: 6 }),
+    queryFn: () =>
+      fetchCustomers({ search, status: "all", branchId: "all" }, { page: 1, pageSize: 6 }),
     enabled: open && search.length >= 2,
     staleTime: 30_000,
   });
