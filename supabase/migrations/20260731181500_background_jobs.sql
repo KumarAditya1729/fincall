@@ -1,8 +1,16 @@
 -- Background Jobs Queue Architecture
 
+CREATE OR REPLACE FUNCTION public.trigger_set_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
 -- 1. Workers table (for heartbeats)
 CREATE TABLE IF NOT EXISTS public.workers (
-    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     hostname text NOT NULL,
     pid int NOT NULL,
     status text NOT NULL CHECK (status IN ('alive', 'offline')),
@@ -12,7 +20,7 @@ CREATE TABLE IF NOT EXISTS public.workers (
 
 -- 2. Jobs table
 CREATE TABLE IF NOT EXISTS public.jobs (
-    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     type text NOT NULL,
     priority text NOT NULL DEFAULT 'medium' CHECK (priority IN ('critical', 'high', 'medium', 'low')),
     status text NOT NULL DEFAULT 'queued' CHECK (status IN ('queued', 'running', 'retrying', 'completed', 'cancelled', 'dead_letter', 'archived', 'paused')),
@@ -36,7 +44,7 @@ CREATE INDEX idx_jobs_status_priority_next_run ON public.jobs (status, priority,
 
 -- 3. Job Logs table
 CREATE TABLE IF NOT EXISTS public.job_logs (
-    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     job_id uuid NOT NULL REFERENCES public.jobs(id) ON DELETE CASCADE,
     level text NOT NULL CHECK (level IN ('info', 'warn', 'error')),
     message text NOT NULL,
@@ -48,7 +56,7 @@ CREATE INDEX idx_job_logs_job_id ON public.job_logs(job_id);
 
 -- 4. Job Failures table (DLQ Stack Traces)
 CREATE TABLE IF NOT EXISTS public.job_failures (
-    id uuid DEFAULT uuid_generate_v4() PRIMARY KEY,
+    id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
     job_id uuid NOT NULL REFERENCES public.jobs(id) ON DELETE CASCADE,
     failed_at timestamptz DEFAULT now(),
     error_details text NOT NULL,

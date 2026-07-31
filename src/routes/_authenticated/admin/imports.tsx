@@ -179,6 +179,7 @@ function ImportsPage() {
                   onChange={(event) => {
                     const f = event.target.files?.[0];
                     if (!f) return;
+                    parseMutation.reset();
                     setFile(f);
                     setFileName(f.name);
                     parseMutation.mutate(f);
@@ -200,13 +201,25 @@ function ImportsPage() {
               >
                 Download template
               </Button>
-              <p className="text-xs text-muted-foreground">
-                Required columns: {requiredColumns.join(", ")}
-              </p>
+              <div className="space-y-1">
+                <p className="text-xs text-muted-foreground">
+                  Required columns: {requiredColumns.join(", ")}
+                </p>
+                <p className="text-xs text-amber-500 font-medium">
+                  अधिकतम सीमा: 2,000 पंक्तियाँ (rows) या 5MB प्रति फ़ाइल। (Max limit: 2,000 rows or 5MB per file).
+                </p>
+              </div>
             </div>
 
             {parseMutation.isPending ? (
               <p className="text-sm text-muted-foreground">Reading the file…</p>
+            ) : null}
+
+            {parseMutation.isError ? (
+              <div className="rounded-lg border border-danger/30 bg-danger/10 p-4 text-sm text-danger space-y-1">
+                <p className="font-semibold">फ़ाइल त्रुटि (File Error)</p>
+                <p>{parseMutation.error instanceof Error ? parseMutation.error.message : "Could not read the spreadsheet"}</p>
+              </div>
             ) : null}
 
             {parsed ? (
