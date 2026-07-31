@@ -12,13 +12,7 @@ export default defineConfig({
     tanstackStart({
       server: { entry: "server" }
     }),
-    nitro({
-      output: {
-        dir: "dist",
-        serverDir: "dist/server",
-        publicDir: "dist/client"
-      }
-    }),
+    nitro(),
     react(),
   ],
   server: {
