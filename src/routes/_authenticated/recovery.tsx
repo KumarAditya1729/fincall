@@ -164,7 +164,12 @@ function RecoveryQueuePage() {
         cell: (row) =>
           user ? (
             <div className="flex flex-wrap items-center justify-end gap-1.5">
-              <CallButton phone={row.phone} />
+              <CallButton
+                phone={row.phone}
+                afterCallClose={() => {
+                  window.location.href = `/customers/${row.id}`;
+                }}
+              />
               <LogCallDialog
                 customerId={row.id}
                 branchId={row.branch?.id ?? user.branchId}

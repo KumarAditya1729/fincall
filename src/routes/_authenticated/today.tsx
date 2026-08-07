@@ -267,7 +267,14 @@ function FollowupList({
                 <p className="text-sm text-muted-foreground">{followup.notes}</p>
               ) : null}
               <div className="flex flex-wrap items-center gap-1.5">
-                <CallButton phone={followup.customer?.phone ?? null} />
+                <CallButton
+                  phone={followup.customer?.phone ?? null}
+                  afterCallClose={() => {
+                    if (followup.customer) {
+                      window.location.href = `/customers/${followup.customer.id}`;
+                    }
+                  }}
+                />
                 {user && followup.customer ? (
                   <>
                     <LogCallDialog

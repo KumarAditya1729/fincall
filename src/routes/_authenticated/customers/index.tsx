@@ -93,7 +93,13 @@ function CustomersPage() {
         cell: (row) => (
           <div className="flex items-center gap-2">
             <span>{row.phone ?? "—"}</span>
-            <CallButton phone={row.phone} variant="secondary" />
+            <CallButton
+              phone={row.phone}
+              variant="secondary"
+              afterCallClose={() => {
+                window.location.href = `/customers/${row.id}`;
+              }}
+            />
           </div>
         ),
       },

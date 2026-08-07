@@ -15,6 +15,7 @@ interface CallButtonProps {
   phone: string | null | undefined;
   label?: string;
   onCallStart?: () => void;
+  afterCallClose?: () => void;
   size?: "sm" | "default";
   variant?: "default" | "outline" | "secondary";
 }
@@ -50,6 +51,13 @@ export function CallButton({
     }
   };
 
+  const handleDialogClose = () => {
+    setOpen(false);
+    if (afterCallClose) {
+      afterCallClose();
+    }
+  };
+
   return (
     <>
       <Button size={size} variant={variant} onClick={handleCallClick} aria-label={`Call ${sanitized}`}>
@@ -74,7 +82,7 @@ export function CallButton({
             </DialogDescription>
           </DialogHeader>
           <DialogFooter className="sm:justify-start">
-            <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
+            <Button type="button" variant="secondary" onClick={handleDialogClose}>
               ठीक है (OK)
             </Button>
           </DialogFooter>
