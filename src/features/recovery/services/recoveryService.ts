@@ -3,7 +3,7 @@ import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import type { Database } from "@/integrations/supabase/types";
 
-import { formatCurrency, todayISO } from "@/lib/format";
+import { formatCurrency, startOfTodayISO, todayISO } from "@/lib/format";
 import { sanitizeSearchTerm } from "@/lib/supabase-filters";
 import type { PaginatedResult, RecoveryStatus } from "@/types";
 
@@ -149,7 +149,7 @@ export async function fetchTodaysWork(options: {
     .select(
       "id, called_at, is_connected, purpose, remark, customer:customers(id, full_name), status:call_status(name)",
     )
-    .gte("called_at", `${today}T00:00:00.000Z`)
+    .gte("called_at", startOfTodayISO())
     .is("deleted_at", null)
     .order("called_at", { ascending: false })
     .limit(200);
