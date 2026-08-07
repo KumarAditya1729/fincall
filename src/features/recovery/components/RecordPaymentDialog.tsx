@@ -100,6 +100,10 @@ export function RecordPaymentDialog({
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.customerDetail(customerId) });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.recoveryQueue });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.customers });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminDashboard });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.executiveDashboard });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.branchPerformance });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.callTrend });
     },
     onError: (error) => toastError(error, "Could not record the payment"),
   });

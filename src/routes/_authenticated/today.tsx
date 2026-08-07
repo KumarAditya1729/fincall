@@ -67,6 +67,7 @@ function TodayPage() {
     onSuccess: async () => {
       toast.success("Follow-up completed");
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.todaysWork });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.executiveDashboard });
     },
     onError: (error) => toastError(error, "Could not update"),
   });

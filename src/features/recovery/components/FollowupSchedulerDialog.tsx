@@ -78,6 +78,7 @@ export function FollowupSchedulerDialog({
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.customerDetail(customerId) });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.todaysWork });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.recoveryQueue });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.executiveDashboard });
     },
     onError: (error) => toastError(error, "Could not schedule the follow-up"),
   });
