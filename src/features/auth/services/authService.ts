@@ -9,7 +9,11 @@ export async function fetchCurrentUser(): Promise<CurrentUser | null> {
   const userId = userData.user.id;
 
   const [profileResult, rolesResult] = await Promise.all([
-    supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("*, branch:branches(id, name)")
+      .eq("id", userId)
+      .maybeSingle(),
     supabase.from("user_roles").select("role").eq("user_id", userId),
   ]);
 
@@ -27,6 +31,7 @@ export async function fetchCurrentUser(): Promise<CurrentUser | null> {
     roles,
     primaryRole,
     branchId: profile?.branch_id ?? null,
+    branch: profile?.branch ?? null,
   };
 }
 

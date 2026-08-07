@@ -25,6 +25,7 @@ export interface CurrentUser {
   roles: AppRole[];
   primaryRole: AppRole | null;
   branchId: string | null;
+  branch?: { id: string; name: string } | null;
 }
 
 export interface PaginatedResult<T> {

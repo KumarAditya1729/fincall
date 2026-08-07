@@ -5,6 +5,7 @@ import {
   BadgeIndianRupee,
   CalendarClock,
   CheckCircle2,
+  MapPin,
   PhoneCall,
   PhoneOutgoing,
   Target,
@@ -67,7 +68,7 @@ function DashboardPage() {
           title={`Welcome back, ${user?.profile?.full_name?.split(" ")[0] ?? "there"}`}
           description={
             role
-              ? `${ROLE_LABELS[role]} workspace · ${new Date().toLocaleDateString("en-IN", { dateStyle: "medium" })}`
+              ? `${ROLE_LABELS[role]}${user?.branch?.name ? ` · ${user.branch.name}` : ""} · ${new Date().toLocaleDateString("en-IN", { dateStyle: "medium" })}`
               : "Your account has no role assigned yet. Contact your administrator."
           }
           actions={
@@ -252,6 +253,12 @@ function ExecutiveDashboard({ userId }: { userId: string }) {
   return (
     <div className="space-y-6">
       <section aria-label="My workload" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          label="Branch"
+          value={user.branch?.name ?? "Unassigned"}
+          icon={MapPin}
+          isLoading={false}
+        />
         <StatCard
           label="Assigned customers"
           value={String(data?.assignedCustomers ?? 0)}
