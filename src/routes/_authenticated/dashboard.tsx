@@ -33,6 +33,7 @@ import {
   fetchExecutiveMetrics,
 } from "@/features/dashboard/services/dashboardService";
 import { formatCurrency, formatDateTime, formatPercent } from "@/lib/format";
+import type { CurrentUser } from "@/types";
 
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
@@ -101,7 +102,7 @@ function DashboardPage() {
             branchId={role === "branch_manager" ? (user?.branchId ?? null) : null}
           />
         ) : role === "recovery_executive" && user ? (
-          <ExecutiveDashboard userId={user.id} />
+          <ExecutiveDashboard user={user} />
         ) : (
           <Card>
             <CardContent className="py-12">
@@ -242,10 +243,10 @@ function ManagerialDashboard({ branchId }: { branchId: string | null }) {
   );
 }
 
-function ExecutiveDashboard({ userId }: { userId: string }) {
+function ExecutiveDashboard({ user }: { user: CurrentUser }) {
   const metrics = useQuery({
-    queryKey: [...QUERY_KEYS.executiveDashboard, userId],
-    queryFn: () => fetchExecutiveMetrics(userId),
+    queryKey: [...QUERY_KEYS.executiveDashboard, user.id],
+    queryFn: () => fetchExecutiveMetrics(user.id),
   });
   const data = metrics.data;
   const loading = metrics.isLoading;
