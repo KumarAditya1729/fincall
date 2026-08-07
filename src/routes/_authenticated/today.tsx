@@ -51,10 +51,14 @@ function TodayPage() {
   const { data: user } = useCurrentUser();
   const [onlyMine, setOnlyMine] = useState(true);
   const queryClient = useQueryClient();
+  const isManagerial =
+    user?.primaryRole === "branch_manager" || user?.primaryRole === "super_admin";
+
+  const effectiveOnlyMine = isManagerial ? false : onlyMine;
 
   const work = useQuery({
-    queryKey: [...QUERY_KEYS.todaysWork, onlyMine, user?.id],
-    queryFn: () => fetchTodaysWork({ onlyMine, userId: user!.id }),
+    queryKey: [...QUERY_KEYS.todaysWork, effectiveOnlyMine, user?.id],
+    queryFn: () => fetchTodaysWork({ onlyMine: effectiveOnlyMine, userId: user!.id }),
     enabled: Boolean(user?.id),
   });
 
@@ -77,11 +81,19 @@ function TodayPage() {
           description="Follow-ups due today, overdue promises and every call you've logged so far."
           actions={
             <div className="flex items-center gap-2">
-              <Label htmlFor="only-mine" className="text-sm text-muted-foreground">
-                Only mine
-              </Label>
-              <Switch id="only-mine" checked={onlyMine} onCheckedChange={setOnlyMine} />
-            </div>
+            {!isManagerial ? (
+              <>
+                <Label htmlFor="only-mine" className="text-sm text-muted-foreground">
+                  Only mine
+                </Label>
+                <Switch id="only-mine" checked={onlyMine} onCheckedChange={setOnlyMine} />
+              </>
+            ) : (
+              <span className="text-sm text-muted-foreground">
+                Showing all today’s calls for your role.
+              </span>
+            )}
+          </div>
           }
         />
 

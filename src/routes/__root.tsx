@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { Toaster } from "@/components/ui/sonner";
+import { QUERY_KEYS } from "@/constants";
 import { supabase } from "@/integrations/supabase/client";
 
 function NotFoundComponent() {
@@ -128,7 +129,46 @@ function RootComponent() {
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
-    return () => data.subscription.unsubscribe();
+
+    const invalidateForTable = (table: string) => {
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.recentActivity });
+
+      if (table === "call_logs") {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.todaysWork });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.recoveryQueue });
+      }
+      if (table === "followups") {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.todaysWork });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.recoveryQueue });
+      }
+      if (table === "remarks") {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.recentActivity });
+      }
+      if (table === "payments") {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminDashboard });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.executiveDashboard });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.branchPerformance });
+      }
+      if (table === "customers") {
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.customers });
+      }
+    };
+
+    const realtimeTables = ["call_logs", "followups", "remarks", "payments", "customers"];
+    const channel = supabase.channel("realtime-updates");
+
+    realtimeTables.forEach((table) => {
+      channel.on("postgres_changes", { event: "*", schema: "public", table }, () => {
+        invalidateForTable(table);
+      });
+    });
+
+    void channel.subscribe();
+
+    return () => {
+      data.subscription.unsubscribe();
+      void supabase.removeChannel(channel);
+    };
   }, [router, queryClient]);
 
   return (
