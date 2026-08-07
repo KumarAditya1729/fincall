@@ -123,6 +123,9 @@ export function LogCallDialog({ customerId, branchId, user, loanId }: LogCallDia
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.customerDetail(customerId) });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.calls });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.customers });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminDashboard });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.executiveDashboard });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.branchPerformance });
     },
     onError: (error) => {
       toastError(error, "Could not log the call");
