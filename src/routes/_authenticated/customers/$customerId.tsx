@@ -169,7 +169,13 @@ function CustomerDetailPage() {
                 user ? (
                   <div className="flex flex-wrap items-center gap-2">
                     <RecoveryStatusBadge status={customer.data.recovery_status} />
-                    <CallButton phone={customer.data.phone} label="Call" />
+                    <CallButton
+                      phone={customer.data.phone}
+                      label="Call"
+                      afterCallClose={() => {
+                        /* do nothing: already on customer page */
+                      }}
+                    />
                     <LogCallDialog
                       customerId={customerId}
                       branchId={customer.data.branch?.id ?? user.branchId}
