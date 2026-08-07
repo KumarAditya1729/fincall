@@ -9,11 +9,7 @@ export async function fetchCurrentUser(): Promise<CurrentUser | null> {
   const userId = userData.user.id;
 
   const [profileResult, rolesResult] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select("*, branch:branches(id, name)")
-      .eq("id", userId)
-      .maybeSingle(),
+    supabase.from("profiles").select("*").eq("id", userId).maybeSingle(),
     supabase.from("user_roles").select("role").eq("user_id", userId),
   ]);
 
@@ -24,6 +20,17 @@ export async function fetchCurrentUser(): Promise<CurrentUser | null> {
   const roles = (rolesResult.data ?? []).map((row) => row.role as AppRole);
   const primaryRole = ROLE_PRIORITY.find((role) => roles.includes(role)) ?? null;
 
+  let branch: { id: string; name: string } | null = null;
+  if (profile?.branch_id) {
+    const branchResult = await supabase
+      .from("branches")
+      .select("id, name")
+      .eq("id", profile.branch_id)
+      .maybeSingle();
+    if (branchResult.error) throw branchResult.error;
+    branch = branchResult.data;
+  }
+
   return {
     id: userId,
     email: userData.user.email ?? "",
@@ -31,7 +38,7 @@ export async function fetchCurrentUser(): Promise<CurrentUser | null> {
     roles,
     primaryRole,
     branchId: profile?.branch_id ?? null,
-    branch: profile?.branch ?? null,
+    branch,
   };
 }
 
