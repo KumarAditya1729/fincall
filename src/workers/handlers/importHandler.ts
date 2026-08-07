@@ -35,6 +35,10 @@ export async function importCustomersHandler(
   const CHUNK_SIZE = 500;
   let successCount = 0;
 
+  if (!job.created_by) {
+    throw new Error("Import job does not contain a creator identity");
+  }
+
   for (let i = 0; i < totalRows; i += CHUNK_SIZE) {
     const chunk = rows.slice(i, i + CHUNK_SIZE);
 
@@ -43,6 +47,7 @@ export async function importCustomersHandler(
       _rows: chunk as never,
       _branch_id: job.branch_id,
       _file_name: filePath.split("/").pop() || "unknown",
+      _created_by: job.created_by,
     });
 
     if (rpcError) {
@@ -89,12 +94,17 @@ export async function importLoansHandler(
   const CHUNK_SIZE = 500;
   let successCount = 0;
 
+  if (!job.created_by) {
+    throw new Error("Import job does not contain a creator identity");
+  }
+
   for (let i = 0; i < totalRows; i += CHUNK_SIZE) {
     const chunk = rows.slice(i, i + CHUNK_SIZE);
 
     const { error: rpcError } = await supabaseAdmin.rpc("import_loans", {
       _rows: chunk as never,
       _file_name: filePath.split("/").pop() || "unknown",
+      _created_by: job.created_by,
     });
 
     if (rpcError) {

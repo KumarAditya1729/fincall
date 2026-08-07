@@ -117,12 +117,17 @@ export async function runImport(input: {
   if (uploadError) throw new Error(`File upload failed: ${uploadError.message}`);
 
   // Enqueue Job
+  const { data: authData, error: authError } = await supabase.auth.getUser();
+  if (authError) throw authError;
+  if (!authData.user?.id) throw new Error("Unable to determine authenticated user");
+
   const jobType = parsed.entity === "customers" ? "customer_import" : "loan_import";
   const { error: jobError } = await supabase.from("jobs").insert({
     type: jobType,
     priority: "medium",
     payload: { filePath: storagePath },
     branch_id: parsed.branchId,
+    created_by: authData.user.id,
   });
 
   if (jobError) throw new Error(`Failed to queue job: ${jobError.message}`);
