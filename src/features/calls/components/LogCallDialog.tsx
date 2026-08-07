@@ -34,8 +34,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AUDIT_ACTIONS, QUERY_KEYS, RECOVERY_STATUS_LABELS } from "@/constants";
-import { recordAudit } from "@/features/audit/services/auditService";
+import { QUERY_KEYS, RECOVERY_STATUS_LABELS } from "@/constants";
 import { logCall } from "@/features/calls/services/callService";
 import { fetchCallStatuses } from "@/features/customers/services/customerDetailService";
 import { CALL_PURPOSES } from "@/constants";
@@ -91,7 +90,7 @@ export function LogCallDialog({ customerId, branchId, user, loanId }: LogCallDia
     mutationFn: async (values: LogCallValues) => {
       const parsed = logCallSchema.parse(values);
       const status = (statuses.data ?? []).find((item) => item.id === parsed.callStatusId);
-      const callId = await logCall({
+      await logCall({
         customerId,
         loanId: loanId ?? null,
         branchId,
@@ -107,14 +106,6 @@ export function LogCallDialog({ customerId, branchId, user, loanId }: LogCallDia
         nextFollowupDate: parsed.nextFollowupDate || null,
         recoveryStatus: (parsed.recoveryStatus as RecoveryStatus) || null,
       });
-      await recordAudit({
-        action: AUDIT_ACTIONS.CALL_UPDATE,
-        entityType: "call_logs",
-        entityId: callId,
-        userId: user.id,
-        branchId,
-        metadata: { customerId },
-      });
     },
     onSuccess: async () => {
       toast.success("Call logged");
@@ -126,6 +117,7 @@ export function LogCallDialog({ customerId, branchId, user, loanId }: LogCallDia
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminDashboard });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.executiveDashboard });
       await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.branchPerformance });
+      await queryClient.invalidateQueries({ queryKey: QUERY_KEYS.callTrend });
     },
     onError: (error) => {
       toastError(error, "Could not log the call");

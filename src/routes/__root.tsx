@@ -138,6 +138,7 @@ function RootComponent() {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.recoveryQueue });
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminDashboard });
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.executiveDashboard });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.callTrend });
       }
       if (table === "followups") {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.todaysWork });
@@ -151,6 +152,7 @@ function RootComponent() {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.adminDashboard });
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.executiveDashboard });
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.branchPerformance });
+        queryClient.invalidateQueries({ queryKey: QUERY_KEYS.callTrend });
       }
       if (table === "customers") {
         queryClient.invalidateQueries({ queryKey: QUERY_KEYS.customers });
