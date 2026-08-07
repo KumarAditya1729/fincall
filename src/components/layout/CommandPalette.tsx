@@ -6,6 +6,7 @@ import {
   PhoneCall,
   Settings,
   ShieldCheck,
+  Server,
   Target,
   Users,
 } from "lucide-react";
@@ -67,6 +68,7 @@ const DESTINATIONS: { to: string; label: string; icon: typeof Users; roles: AppR
   },
   { to: "/admin/branches", label: "Branches", icon: Settings, roles: ["super_admin"] },
   { to: "/admin/employees", label: "Employees", icon: Settings, roles: ["super_admin"] },
+  { to: "/admin/jobs", label: "Background Jobs", icon: Server, roles: ["super_admin"] },
   { to: "/admin/imports", label: "Data Imports", icon: Settings, roles: ["super_admin"] },
   { to: "/admin/settings", label: "Company Settings", icon: Settings, roles: ["super_admin"] },
   { to: "/audit-logs", label: "Audit Logs", icon: ShieldCheck, roles: ["super_admin"] },

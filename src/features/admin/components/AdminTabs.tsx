@@ -16,6 +16,7 @@ export const ADMIN_SECTIONS: AdminSection[] = [
   { to: "/admin/employees", label: "Employees" },
   { to: "/admin/permissions", label: "Roles & permissions" },
   { to: "/admin/assignments", label: "Bulk transfers" },
+  { to: "/admin/jobs", label: "Background Jobs" },
   { to: "/admin/imports", label: "Data import" },
   { to: "/admin/masters", label: "Master data" },
   { to: "/admin/calendar", label: "Calendar & hours" },

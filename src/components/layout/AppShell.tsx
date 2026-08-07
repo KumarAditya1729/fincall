@@ -8,6 +8,7 @@ import {
   Menu,
   PhoneCall,
   Search,
+  Server,
   Settings,
   ShieldCheck,
   Users,
@@ -116,6 +117,7 @@ const PAGE_TITLES: { match: string; label: string }[] = [
   { match: "/admin/imports", label: "Administration · Imports" },
   { match: "/admin/calendar", label: "Administration · Calendar" },
   { match: "/admin/templates", label: "Administration · Templates" },
+  { match: "/admin/jobs", label: "Administration · Background Jobs" },
   { match: "/admin/settings", label: "Administration · Company Settings" },
 ];
 
