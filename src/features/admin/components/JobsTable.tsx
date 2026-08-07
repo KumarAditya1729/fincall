@@ -38,10 +38,11 @@ export function JobsTable() {
   const queryClient = useQueryClient();
   const [pagination, setPagination] = useState<PaginationState>({ page: 1, pageSize: 20 });
   const [statusFilter, setStatusFilter] = useState("all");
+  const [typeFilter, setTypeFilter] = useState("all");
 
   const { data, isLoading } = useQuery({
-    queryKey: ["admin", "jobs", pagination, statusFilter],
-    queryFn: () => fetchJobs(pagination, { status: statusFilter }),
+    queryKey: ["admin", "jobs", pagination, statusFilter, typeFilter],
+    queryFn: () => fetchJobs(pagination, { status: statusFilter, type: typeFilter }),
     refetchInterval: 5000,
   });
 
@@ -114,20 +115,59 @@ export function JobsTable() {
 
   return (
     <div className="space-y-4">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-lg border">
-        <div className="flex gap-2">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="border rounded-md px-3 py-1.5 text-sm"
-          >
-            <option value="all">All Statuses</option>
-            <option value="queued">Queued</option>
-            <option value="running">Running</option>
-            <option value="retrying">Retrying</option>
-            <option value="dead_letter">Dead Letter</option>
-            <option value="completed">Completed</option>
-          </select>
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <div className="bg-white border rounded-lg p-4 shadow-sm">
+          <p className="text-sm text-gray-500">Total jobs</p>
+          <p className="text-3xl font-semibold">{data?.total ?? "—"}</p>
+        </div>
+        <div className="bg-white border rounded-lg p-4 shadow-sm">
+          <p className="text-sm text-gray-500">Pending</p>
+          <p className="text-3xl font-semibold">
+            {data?.rows.filter((job) => job.status === "queued" || job.status === "retrying").length ?? "—"}
+          </p>
+        </div>
+        <div className="bg-white border rounded-lg p-4 shadow-sm">
+          <p className="text-sm text-gray-500">Failed</p>
+          <p className="text-3xl font-semibold">
+            {data?.rows.filter((job) => job.status === "dead_letter").length ?? "—"}
+          </p>
+        </div>
+        <div className="bg-white border rounded-lg p-4 shadow-sm">
+          <p className="text-sm text-gray-500">Active workers</p>
+          <p className="text-3xl font-semibold">—</p>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-3 sm:flex-row justify-between items-start sm:items-center bg-white p-4 rounded-lg border">
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <div>
+            <label className="text-sm font-medium text-gray-700">Status</label>
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="mt-1 border rounded-md px-3 py-1.5 text-sm w-full sm:w-auto"
+            >
+              <option value="all">All Statuses</option>
+              <option value="queued">Queued</option>
+              <option value="running">Running</option>
+              <option value="retrying">Retrying</option>
+              <option value="dead_letter">Dead Letter</option>
+              <option value="completed">Completed</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-sm font-medium text-gray-700">Job Type</label>
+            <select
+              value={typeFilter}
+              onChange={(e) => setTypeFilter(e.target.value)}
+              className="mt-1 border rounded-md px-3 py-1.5 text-sm w-full sm:w-auto"
+            >
+              <option value="all">All Types</option>
+              <option value="customer_import">Customer Import</option>
+              <option value="loan_import">Loan Import</option>
+              <option value="campaign_launcher">Campaign Launcher</option>
+            </select>
+          </div>
         </div>
         <div className="flex flex-wrap gap-2">
           <Button
@@ -162,10 +202,22 @@ export function JobsTable() {
       </div>
 
       <div className="bg-white border rounded-lg overflow-hidden">
+        <div className="border-b px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+          <div>
+            <p className="text-lg font-semibold">Job queue</p>
+            <p className="text-sm text-muted-foreground">View job progress, errors, and retry failed imports.</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Button variant="secondary" size="sm" onClick={() => handleAction("Refresh Jobs", Promise.resolve())}>
+              <RefreshCcw className="w-4 h-4 mr-2" /> Refresh
+            </Button>
+          </div>
+        </div>
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Job Type & ID</TableHead>
+              <TableHead className="min-w-[180px]">Job Type</TableHead>
+              <TableHead>ID</TableHead>
               <TableHead>Status</TableHead>
               <TableHead>Priority</TableHead>
               <TableHead>Progress</TableHead>
@@ -177,7 +229,7 @@ export function JobsTable() {
           <TableBody>
             {isLoading ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8">
+                <TableCell colSpan={8} className="text-center py-8">
                   <div className="animate-pulse flex flex-col items-center gap-2">
                     <div className="h-4 w-32 bg-gray-200 rounded"></div>
                     <div className="text-sm text-gray-400">Loading jobs...</div>
@@ -186,7 +238,7 @@ export function JobsTable() {
               </TableRow>
             ) : data?.rows.length === 0 ? (
               <TableRow>
-                <TableCell colSpan={7} className="text-center py-8 text-gray-500">
+                <TableCell colSpan={8} className="text-center py-8 text-gray-500">
                   No jobs found matching criteria.
                 </TableCell>
               </TableRow>
@@ -195,21 +247,24 @@ export function JobsTable() {
                 <TableRow key={job.id}>
                   <TableCell>
                     <div className="font-medium">{job.type}</div>
-                    <div className="text-xs text-gray-500 truncate w-32" title={job.id}>
+                  </TableCell>
+                  <TableCell>
+                    <div className="text-xs text-gray-500 truncate w-48" title={job.id}>
                       {job.id}
                     </div>
                   </TableCell>
                   <TableCell>{getStatusBadge(job.status)}</TableCell>
                   <TableCell>{getPriorityBadge(job.priority)}</TableCell>
-                  <TableCell className="w-[150px]">
+                  <TableCell className="w-[160px]">
                     <div className="flex flex-col gap-1">
-                      <div className="flex justify-between text-xs">
+                      <div className="flex justify-between text-xs text-gray-500">
                         <span>{job.progress}%</span>
+                        <span>{job.error_message ? "Error" : "OK"}</span>
                       </div>
                       <Progress value={job.progress} className="h-2" />
                       {job.error_message && (
                         <span
-                          className="text-[10px] text-red-500 truncate block w-[150px]"
+                          className="text-[10px] text-red-500 truncate block w-full"
                           title={job.error_message}
                         >
                           {job.error_message}
@@ -218,15 +273,9 @@ export function JobsTable() {
                     </div>
                   </TableCell>
                   <TableCell className="text-xs text-gray-500">
-                    <div>
-                      Created: {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}
-                    </div>
-                    {job.started_at && (
-                      <div>Started: {format(new Date(job.started_at), "HH:mm:ss")}</div>
-                    )}
-                    {job.finished_at && (
-                      <div>Finished: {format(new Date(job.finished_at), "HH:mm:ss")}</div>
-                    )}
+                    <div>Created: {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}</div>
+                    {job.started_at && <div>Started: {format(new Date(job.started_at), "HH:mm:ss")}</div>}
+                    {job.finished_at && <div>Finished: {format(new Date(job.finished_at), "HH:mm:ss")}</div>}
                   </TableCell>
                   <TableCell className="text-sm">
                     {job.attempts} / {job.max_attempts}
