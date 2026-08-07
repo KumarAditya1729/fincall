@@ -25,6 +25,7 @@ export function CallButton({
   phone,
   label,
   onCallStart,
+  afterCallClose,
   size = "sm",
   variant = "outline",
 }: CallButtonProps) {
@@ -60,7 +61,12 @@ export function CallButton({
 
   return (
     <>
-      <Button size={size} variant={variant} onClick={handleCallClick} aria-label={`Call ${sanitized}`}>
+      <Button
+        size={size}
+        variant={variant}
+        onClick={handleCallClick}
+        aria-label={`Call ${sanitized}`}
+      >
         <Phone className="size-4" aria-hidden="true" />
         {label ? <span>{label}</span> : null}
       </Button>
@@ -74,10 +80,12 @@ export function CallButton({
             </DialogTitle>
             <DialogDescription className="text-sm space-y-2 pt-2">
               <p>
-                कॉल समाप्त होने के बाद, कृपया बातचीत का विवरण (कॉल स्टेटस, रिमार्क्स, या PTP) दर्ज करना न भूलें।
+                कॉल समाप्त होने के बाद, कृपया बातचीत का विवरण (कॉल स्टेटस, रिमार्क्स, या PTP) दर्ज
+                करना न भूलें।
               </p>
               <p className="text-muted-foreground text-xs">
-                Once your call is complete, please record the log using the <strong>Log call</strong> button on the customer page.
+                Once your call is complete, please record the log using the{" "}
+                <strong>Log call</strong> button on the customer page.
               </p>
             </DialogDescription>
           </DialogHeader>
@@ -91,4 +99,3 @@ export function CallButton({
     </>
   );
 }
-

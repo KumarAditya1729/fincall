@@ -111,9 +111,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <HeadContent />
       </head>
       <body className="bg-background">
-        <div className="flex min-h-dvh flex-col relative overflow-x-hidden">
-          {children}
-        </div>
+        <div className="flex min-h-dvh flex-col relative overflow-x-hidden">{children}</div>
         <Scripts />
       </body>
     </html>

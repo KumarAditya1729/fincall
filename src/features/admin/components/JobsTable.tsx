@@ -123,7 +123,8 @@ export function JobsTable() {
         <div className="bg-white border rounded-lg p-4 shadow-sm">
           <p className="text-sm text-gray-500">Pending</p>
           <p className="text-3xl font-semibold">
-            {data?.rows.filter((job) => job.status === "queued" || job.status === "retrying").length ?? "—"}
+            {data?.rows.filter((job) => job.status === "queued" || job.status === "retrying")
+              .length ?? "—"}
           </p>
         </div>
         <div className="bg-white border rounded-lg p-4 shadow-sm">
@@ -205,10 +206,16 @@ export function JobsTable() {
         <div className="border-b px-4 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
           <div>
             <p className="text-lg font-semibold">Job queue</p>
-            <p className="text-sm text-muted-foreground">View job progress, errors, and retry failed imports.</p>
+            <p className="text-sm text-muted-foreground">
+              View job progress, errors, and retry failed imports.
+            </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="secondary" size="sm" onClick={() => handleAction("Refresh Jobs", Promise.resolve())}>
+            <Button
+              variant="secondary"
+              size="sm"
+              onClick={() => handleAction("Refresh Jobs", Promise.resolve())}
+            >
               <RefreshCcw className="w-4 h-4 mr-2" /> Refresh
             </Button>
           </div>
@@ -273,9 +280,15 @@ export function JobsTable() {
                     </div>
                   </TableCell>
                   <TableCell className="text-xs text-gray-500">
-                    <div>Created: {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}</div>
-                    {job.started_at && <div>Started: {format(new Date(job.started_at), "HH:mm:ss")}</div>}
-                    {job.finished_at && <div>Finished: {format(new Date(job.finished_at), "HH:mm:ss")}</div>}
+                    <div>
+                      Created: {formatDistanceToNow(new Date(job.created_at), { addSuffix: true })}
+                    </div>
+                    {job.started_at && (
+                      <div>Started: {format(new Date(job.started_at), "HH:mm:ss")}</div>
+                    )}
+                    {job.finished_at && (
+                      <div>Finished: {format(new Date(job.finished_at), "HH:mm:ss")}</div>
+                    )}
                   </TableCell>
                   <TableCell className="text-sm">
                     {job.attempts} / {job.max_attempts}

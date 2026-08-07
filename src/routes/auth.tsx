@@ -38,7 +38,6 @@ import {
   signUpWithPassword,
 } from "@/features/auth/services/authService";
 
-
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
@@ -152,14 +151,14 @@ function AuthPage() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/dashboard`,
         },
       });
       if (error) {
         toast.error(error.message);
       }
-    } catch (e: any) {
-      toast.error(e.message || "An error occurred");
+    } catch (e: unknown) {
+      toast.error(e instanceof Error ? e.message : "An error occurred");
     } finally {
       setPending(false);
     }

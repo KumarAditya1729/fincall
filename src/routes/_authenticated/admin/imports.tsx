@@ -206,7 +206,8 @@ function ImportsPage() {
                   Required columns: {requiredColumns.join(", ")}
                 </p>
                 <p className="text-xs text-amber-500 font-medium">
-                  अधिकतम सीमा: 2,000 पंक्तियाँ (rows) या 5MB प्रति फ़ाइल। (Max limit: 2,000 rows or 5MB per file).
+                  अधिकतम सीमा: 2,000 पंक्तियाँ (rows) या 5MB प्रति फ़ाइल। (Max limit: 2,000 rows or
+                  5MB per file).
                 </p>
               </div>
             </div>
@@ -218,7 +219,11 @@ function ImportsPage() {
             {parseMutation.isError ? (
               <div className="rounded-lg border border-danger/30 bg-danger/10 p-4 text-sm text-danger space-y-1">
                 <p className="font-semibold">फ़ाइल त्रुटि (File Error)</p>
-                <p>{parseMutation.error instanceof Error ? parseMutation.error.message : "Could not read the spreadsheet"}</p>
+                <p>
+                  {parseMutation.error instanceof Error
+                    ? parseMutation.error.message
+                    : "Could not read the spreadsheet"}
+                </p>
               </div>
             ) : null}
 

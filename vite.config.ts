@@ -10,7 +10,7 @@ export default defineConfig({
     tailwindcss(),
     tsconfigPaths(),
     tanstackStart({
-      server: { entry: "server" }
+      server: { entry: "server" },
     }),
     nitro(),
     react(),
