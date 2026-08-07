@@ -13,7 +13,7 @@ import { AppShell } from "@/components/layout/AppShell";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { QUERY_KEYS } from "@/constants";
+import { QUERY_KEYS, ROLES } from "@/constants";
 import { AdminGuard } from "@/features/admin/components/AdminGuard";
 import { AdminTabs } from "@/features/admin/components/AdminTabs";
 import {
@@ -27,6 +27,7 @@ import {
   type ParsedImport,
 } from "@/features/admin/services/importService";
 import { fetchBranches } from "@/features/customers/services/customerService";
+import { useCurrentUser, hasRole } from "@/features/auth/hooks/useCurrentUser";
 import { useTableState } from "@/hooks/useTableState";
 import { toastError } from "@/lib/errors";
 import { downloadTemplate } from "@/lib/excel";
@@ -70,6 +71,9 @@ function ImportsPage() {
     queryFn: () => fetchImportBatches({ entity: historyFilter }, { page, pageSize }),
     placeholderData: keepPreviousData,
   });
+
+  const { data: user } = useCurrentUser();
+  const isSuperAdmin = hasRole(user, ROLES.SUPER_ADMIN);
 
   const parseMutation = useMutation({
     mutationFn: (f: File) => parseImportFile(entity, f),
@@ -124,7 +128,7 @@ function ImportsPage() {
     parsed !== null &&
     parsed.rows.length > 0 &&
     fileName.length > 0 &&
-    (entity === "loans" || branchId.length > 0);
+    (entity === "loans" || branchId.length > 0 || isSuperAdmin);
 
   return (
     <AppShell>
@@ -159,16 +163,29 @@ function ImportsPage() {
                 label="What are you importing"
               />
               {entity === "customers" ? (
-                <FilterSelect
-                  value={branchId}
-                  onChange={setBranchId}
-                  options={(branches.data ?? []).map((branch) => ({
-                    value: branch.id,
-                    label: branch.name,
-                  }))}
-                  label="Destination branch"
-                  placeholder="Select branch"
-                />
+                <div className="space-y-1">
+                  <FilterSelect
+                    value={branchId}
+                    onChange={setBranchId}
+                    options={(branches.data ?? []).map((branch) => ({
+                      value: branch.id,
+                      label: branch.name,
+                    }))}
+                    label="Destination branch"
+                    placeholder={isSuperAdmin ? "Select branch or leave blank" : "Select branch"}
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    {isSuperAdmin ? (
+                      <>
+                        Leave blank to assign borrowers using sheet columns like{' '}
+                        <span className="font-mono">branch_code</span> and{' '}
+                        <span className="font-mono">branch_name</span>.
+                      </>
+                    ) : (
+                      'Branch selection is required for this import.'
+                    )}
+                  </p>
+                </div>
               ) : null}
               <div className="space-y-1.5">
                 <Label htmlFor="import-file">Excel or CSV file</Label>

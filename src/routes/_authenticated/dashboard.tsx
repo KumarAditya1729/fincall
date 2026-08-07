@@ -292,6 +292,16 @@ function RecentActivityCard() {
     queryFn: () => fetchRecentActivity(8),
   });
 
+  const renderActivityLabel = (item: any) => {
+    const metadata = item.metadata as { customerId?: string; body?: string } | null;
+
+    if (item.activity === "remark.create") {
+      return metadata?.body ? `Remark added: ${metadata.body}` : "Remark added";
+    }
+
+    return item.activity.replace(/\./g, " ");
+  };
+
   return (
     <Card className="shadow-[var(--shadow-card)]">
       <CardHeader>
@@ -315,7 +325,7 @@ function RecentActivityCard() {
             {(activity.data ?? []).map((item) => (
               <li key={item.id} className="flex items-center justify-between gap-4 py-3">
                 <span className="truncate text-sm font-medium text-foreground">
-                  {item.activity}
+                  {renderActivityLabel(item)}
                   {item.entity_type ? (
                     <span className="ml-2 text-muted-foreground">{item.entity_type}</span>
                   ) : null}

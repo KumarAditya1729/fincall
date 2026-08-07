@@ -26,6 +26,8 @@ export const CUSTOMER_IMPORT_COLUMNS = [
   "state",
   "pincode",
   "kyc_id",
+  "branch_code",
+  "branch_name",
 ] as const;
 
 export const LOAN_IMPORT_COLUMNS = [
@@ -99,9 +101,9 @@ export async function runImport(input: {
 }): Promise<void> {
   const parsed = runSchema.parse(input);
 
-  if (parsed.entity === "customers" && !parsed.branchId) {
-    throw new Error("Select the branch these borrowers belong to.");
-  }
+  // Customers may be imported into a selected branch, or they can include
+  // `branch_code` / `branch_name` values in the sheet so a super admin can
+  // auto-select or auto-create branches row-by-row.
 
   // Upload file to job_files bucket
   const fileExt = parsed.fileName.split(".").pop();

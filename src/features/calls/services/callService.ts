@@ -129,7 +129,7 @@ export async function addRemark(input: {
     entityId: data.id,
     userId: input.authorId,
     branchId: input.branchId,
-    metadata: { customerId: input.customerId },
+    metadata: { customerId: input.customerId, body: parsed.body },
   });
 }
 

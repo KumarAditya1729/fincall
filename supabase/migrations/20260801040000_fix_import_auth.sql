@@ -11,6 +11,75 @@ RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS
       OR (_branch_id IS NOT NULL AND _branch_id = public.current_branch_id(_user_id));
 $$;
 
+CREATE OR REPLACE FUNCTION public.resolve_import_branch(
+  _user_id uuid,
+  _branch_id uuid,
+  _branch_code text,
+  _branch_name text
+)
+RETURNS uuid LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE
+  v_branch uuid;
+  v_code text;
+  v_name text;
+BEGIN
+  IF _branch_id IS NOT NULL THEN
+    RETURN _branch_id;
+  END IF;
+
+  IF _branch_code IS NOT NULL AND btrim(_branch_code) <> '' THEN
+    SELECT id INTO v_branch FROM public.branches
+      WHERE upper(code) = upper(btrim(_branch_code)) AND deleted_at IS NULL AND is_active
+      LIMIT 1;
+    IF FOUND THEN
+      RETURN v_branch;
+    END IF;
+  END IF;
+
+  IF _branch_name IS NOT NULL AND btrim(_branch_name) <> '' THEN
+    SELECT id INTO v_branch FROM public.branches
+      WHERE upper(name) = upper(btrim(_branch_name)) AND deleted_at IS NULL AND is_active
+      LIMIT 1;
+    IF FOUND THEN
+      RETURN v_branch;
+    END IF;
+  END IF;
+
+  IF NOT public.has_role(_user_id, 'super_admin') THEN
+    RETURN NULL;
+  END IF;
+
+  v_name := btrim(coalesce(_branch_name, ''));
+  IF v_name = '' THEN
+    v_name := btrim(coalesce(_branch_code, ''));
+  END IF;
+
+  IF v_name = '' THEN
+    RETURN NULL;
+  END IF;
+
+  IF _branch_code IS NOT NULL AND btrim(_branch_code) <> '' THEN
+    v_code := upper(regexp_replace(btrim(_branch_code), '[^A-Z0-9-]+', '-', 'g'));
+  ELSE
+    v_code := upper(regexp_replace(v_name, '[^A-Z0-9-]+', '-', 'g'));
+  END IF;
+  v_code := regexp_replace(v_code, '^-+|-+$', '', 'g');
+  IF v_code = '' THEN
+    v_code := 'BRANCH';
+  END IF;
+
+  LOOP
+    BEGIN
+      INSERT INTO public.branches (name, code, is_active)
+      VALUES (v_name, v_code, true)
+      RETURNING id INTO v_branch;
+      RETURN v_branch;
+    EXCEPTION WHEN unique_violation THEN
+      v_code := v_code || '-' || substr(md5(random()::text), 1, 6);
+    END;
+  END LOOP;
+END; $$;
+
 CREATE OR REPLACE FUNCTION public.import_customers(_rows jsonb, _branch_id uuid, _file_name text, _created_by uuid)
 RETURNS jsonb LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
 DECLARE
@@ -35,6 +104,14 @@ BEGIN
     v_name := btrim(COALESCE(v_row->>'full_name',''));
     v_phone := regexp_replace(COALESCE(v_row->>'phone',''), '[^0-9+]', '', 'g');
     v_branch := COALESCE(NULLIF(v_row->>'branch_id','')::uuid, _branch_id);
+    IF v_branch IS NULL THEN
+      v_branch := public.resolve_import_branch(
+        v_uid,
+        _branch_id,
+        v_row->>'branch_code',
+        v_row->>'branch_name'
+      );
+    END IF;
 
     IF v_code = '' OR v_name = '' OR length(v_phone) < 7 THEN
       v_errors := v_errors || jsonb_build_object('row', v_index, 'reason',
