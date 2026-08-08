@@ -32,6 +32,7 @@ import {
   fetchCallTrend,
   fetchExecutiveMetrics,
 } from "@/features/dashboard/services/dashboardService";
+import { useDashboardRealtime } from "@/features/dashboard/hooks/useDashboardRealtime";
 import { formatCurrency, formatDateTime, formatPercent } from "@/lib/format";
 import type { CurrentUser } from "@/types";
 
@@ -61,6 +62,8 @@ function DashboardPage() {
   const { data: user, isLoading } = useCurrentUser();
   const role = user?.primaryRole ?? null;
   const isManagerial = role === "super_admin" || role === "branch_manager";
+
+  useDashboardRealtime();
 
   return (
     <AppShell>
@@ -245,8 +248,8 @@ function ManagerialDashboard({ branchId }: { branchId: string | null }) {
 
 function ExecutiveDashboard({ user }: { user: CurrentUser }) {
   const metrics = useQuery({
-    queryKey: [...QUERY_KEYS.executiveDashboard, user.id],
-    queryFn: () => fetchExecutiveMetrics(user.id),
+    queryKey: [...QUERY_KEYS.executiveDashboard, user.id, user.branchId],
+    queryFn: () => fetchExecutiveMetrics(user.id, user.branchId),
   });
   const data = metrics.data;
   const loading = metrics.isLoading;
