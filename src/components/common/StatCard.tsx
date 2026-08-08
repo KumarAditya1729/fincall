@@ -1,4 +1,5 @@
 import type { LucideIcon } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 
 import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -21,6 +22,7 @@ interface StatCardProps {
   tone?: StatTone;
   hint?: string;
   isLoading?: boolean;
+  to?: string;
 }
 
 export function StatCard({
@@ -30,10 +32,14 @@ export function StatCard({
   tone = "brand",
   hint,
   isLoading = false,
+  to,
 }: StatCardProps) {
-  return (
-    <Card className="border-border/70 shadow-[var(--shadow-card)] transition-shadow hover:shadow-[var(--shadow-elevated)]">
-      <CardContent className="flex items-start justify-between gap-4 p-5">
+  const inner = (
+    <Card className={cn(
+      "border-border/70 shadow-[var(--shadow-card)] transition-all h-full",
+      to ? "hover:shadow-[var(--shadow-elevated)] hover:border-brand/40 active:scale-[0.98] cursor-pointer" : ""
+    )}>
+      <CardContent className="flex h-full items-start justify-between gap-4 p-5">
         <div className="min-w-0 space-y-2">
           <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
             {label}
@@ -59,4 +65,14 @@ export function StatCard({
       </CardContent>
     </Card>
   );
+
+  if (to) {
+    return (
+      <Link to={to} className="block h-full outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 rounded-xl">
+        {inner}
+      </Link>
+    );
+  }
+
+  return inner;
 }

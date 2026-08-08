@@ -144,6 +144,7 @@ function ManagerialDashboard({ branchId }: { branchId: string | null }) {
           value={String(data?.totalCustomers ?? 0)}
           icon={Users}
           isLoading={loading}
+          to="/customers"
         />
         <StatCard
           label="Outstanding"
@@ -151,6 +152,7 @@ function ManagerialDashboard({ branchId }: { branchId: string | null }) {
           icon={Wallet}
           tone="warning"
           isLoading={loading}
+          to="/customers"
         />
         <StatCard
           label="Today's collection"
@@ -175,6 +177,7 @@ function ManagerialDashboard({ branchId }: { branchId: string | null }) {
           icon={PhoneCall}
           tone="neutral"
           isLoading={loading}
+          to="/today"
         />
         <StatCard
           label="Connected"
@@ -182,6 +185,7 @@ function ManagerialDashboard({ branchId }: { branchId: string | null }) {
           icon={CheckCircle2}
           tone="success"
           isLoading={loading}
+          to="/today"
         />
         <StatCard
           label="Pending outreach"
@@ -189,6 +193,7 @@ function ManagerialDashboard({ branchId }: { branchId: string | null }) {
           icon={PhoneOutgoing}
           tone="danger"
           isLoading={loading}
+          to="/recovery"
         />
       </section>
 
@@ -268,6 +273,7 @@ function ExecutiveDashboard({ user }: { user: CurrentUser }) {
           value={String(data?.assignedCustomers ?? 0)}
           icon={Users}
           isLoading={loading}
+          to="/customers"
         />
         <StatCard
           label="Calls today"
@@ -275,6 +281,7 @@ function ExecutiveDashboard({ user }: { user: CurrentUser }) {
           icon={PhoneCall}
           tone="neutral"
           isLoading={loading}
+          to="/today"
         />
         <StatCard
           label="Connected calls"
@@ -282,6 +289,7 @@ function ExecutiveDashboard({ user }: { user: CurrentUser }) {
           icon={CheckCircle2}
           tone="success"
           isLoading={loading}
+          to="/today"
         />
         <StatCard
           label="Follow-ups due"
@@ -290,6 +298,7 @@ function ExecutiveDashboard({ user }: { user: CurrentUser }) {
           tone="warning"
           hint={`${data?.nextFollowups ?? 0} scheduled later`}
           isLoading={loading}
+          to="/recovery"
         />
       </section>
       <RecentActivityCard />
