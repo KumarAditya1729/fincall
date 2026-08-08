@@ -91,6 +91,7 @@ export async function logCall(input: LogCallInput): Promise<string> {
       isConnected: input.isConnected,
       purpose: input.purpose ?? null,
       recoveryStatus: input.recoveryStatus ?? null,
+      remark: input.remark ?? null,
     },
   });
 

@@ -301,10 +301,17 @@ function RecentActivityCard() {
   });
 
   const renderActivityLabel = (item: any) => {
-    const metadata = item.metadata as { customerId?: string; body?: string } | null;
+    const metadata = item.metadata as { customerId?: string; body?: string; remark?: string; isConnected?: boolean } | null;
 
     if (item.activity === "remark.create") {
       return metadata?.body ? `Remark added: ${metadata.body}` : "Remark added";
+    }
+
+    if (item.activity === "call.update") {
+      if (metadata?.remark) {
+        return `Call logged: ${metadata.remark}`;
+      }
+      return metadata?.isConnected ? "Connected call logged" : "Call logged";
     }
 
     return item.activity.replace(/\./g, " ");
