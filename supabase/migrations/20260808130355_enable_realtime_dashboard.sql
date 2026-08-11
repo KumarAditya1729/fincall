@@ -9,10 +9,23 @@ BEGIN;
   END
   $$;
 
-  ALTER PUBLICATION supabase_realtime ADD TABLE customers;
-  ALTER PUBLICATION supabase_realtime ADD TABLE call_logs;
-  ALTER PUBLICATION supabase_realtime ADD TABLE followups;
-  ALTER PUBLICATION supabase_realtime ADD TABLE payments;
-  ALTER PUBLICATION supabase_realtime ADD TABLE activity_logs;
-  ALTER PUBLICATION supabase_realtime ADD TABLE remarks;
+  -- Add tables safely
+  DO $$
+  DECLARE
+      t text;
+  BEGIN
+      FOR t IN 
+          SELECT unnest(ARRAY['customers', 'call_logs', 'followups', 'payments', 'activity_logs', 'remarks'])
+      LOOP
+          IF NOT EXISTS (
+              SELECT 1 
+              FROM pg_publication_tables 
+              WHERE pubname = 'supabase_realtime' 
+              AND tablename = t
+          ) THEN
+              EXECUTE format('ALTER PUBLICATION supabase_realtime ADD TABLE %I', t);
+          END IF;
+      END LOOP;
+  END;
+  $$;
 COMMIT;
