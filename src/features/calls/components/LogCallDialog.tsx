@@ -40,6 +40,15 @@ import { fetchCallStatuses } from "@/features/customers/services/customerDetailS
 import { CALL_PURPOSES } from "@/constants";
 import type { CurrentUser, RecoveryStatus } from "@/types";
 
+const TALKED_WITH_OPTIONS = [
+  "Borrower",
+  "Spouse",
+  "Family Member",
+  "Guarantor",
+  "Colleague",
+  "Other",
+] as const;
+
 const logCallSchema = z.object({
   purpose: z.string().min(1, "Select a purpose"),
   callStatusId: z.string().min(1, "Select a call outcome"),
@@ -220,9 +229,20 @@ export function LogCallDialog({ customerId, branchId, user, loanId }: LogCallDia
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Talked with</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Borrower / spouse" {...field} />
-                      </FormControl>
+                      <Select value={field.value ?? ""} onValueChange={field.onChange}>
+                        <FormControl>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select person" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {TALKED_WITH_OPTIONS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
