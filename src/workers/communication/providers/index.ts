@@ -38,7 +38,7 @@ export class ProviderFactory {
         provider: REGISTRY[row.provider_name],
         config: row as ProviderConfig,
       }))
-      .filter((r) => r.provider !== undefined);
+      .filter((r): r is { provider: ICommunicationProvider; config: ProviderConfig } => r.provider !== undefined);
 
     return resolved;
   }

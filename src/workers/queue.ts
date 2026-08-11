@@ -137,7 +137,7 @@ export async function startQueueListener(workerId: string) {
           await supabaseAdmin.from("job_failures").insert({
             job_id: job.id,
             error_details: errorMsg,
-            stack_trace: err.stack || null,
+            stack_trace: err instanceof Error ? err.stack || null : null,
           });
 
           await writeLog("error", `Job permanently failed and moved to DLQ: ${errorMsg}`);

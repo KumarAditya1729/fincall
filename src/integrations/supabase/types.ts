@@ -1075,6 +1075,185 @@ export type Database = {
           },
         ];
       };
+      job_failures: {
+        Row: {
+          error_details: string;
+          failed_at: string | null;
+          id: string;
+          job_id: string;
+          stack_trace: string | null;
+        };
+        Insert: {
+          error_details: string;
+          failed_at?: string | null;
+          id?: string;
+          job_id: string;
+          stack_trace?: string | null;
+        };
+        Update: {
+          error_details?: string;
+          failed_at?: string | null;
+          id?: string;
+          job_id?: string;
+          stack_trace?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_failures_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      job_logs: {
+        Row: {
+          created_at: string | null;
+          id: string;
+          job_id: string;
+          level: string;
+          message: string;
+          metadata: Json | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: string;
+          job_id: string;
+          level: string;
+          message: string;
+          metadata?: Json | null;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: string;
+          job_id?: string;
+          level?: string;
+          message?: string;
+          metadata?: Json | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "job_logs_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "jobs";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      jobs: {
+        Row: {
+          assigned_worker_id: string | null;
+          attempts: number;
+          branch_id: string | null;
+          created_at: string | null;
+          created_by: string | null;
+          error_message: string | null;
+          finished_at: string | null;
+          id: string;
+          locked_at: string | null;
+          max_attempts: number;
+          next_run_at: string | null;
+          payload: Json | null;
+          priority: string;
+          progress: number;
+          started_at: string | null;
+          status: string;
+          type: string;
+          updated_at: string | null;
+        };
+        Insert: {
+          assigned_worker_id?: string | null;
+          attempts?: number;
+          branch_id?: string | null;
+          created_at?: string | null;
+          created_by?: string | null;
+          error_message?: string | null;
+          finished_at?: string | null;
+          id?: string;
+          locked_at?: string | null;
+          max_attempts?: number;
+          next_run_at?: string | null;
+          payload?: Json | null;
+          priority?: string;
+          progress?: number;
+          started_at?: string | null;
+          status?: string;
+          type: string;
+          updated_at?: string | null;
+        };
+        Update: {
+          assigned_worker_id?: string | null;
+          attempts?: number;
+          branch_id?: string | null;
+          created_at?: string | null;
+          created_by?: string | null;
+          error_message?: string | null;
+          finished_at?: string | null;
+          id?: string;
+          locked_at?: string | null;
+          max_attempts?: number;
+          next_run_at?: string | null;
+          payload?: Json | null;
+          priority?: string;
+          progress?: number;
+          started_at?: string | null;
+          status?: string;
+          type?: string;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "jobs_assigned_worker_id_fkey";
+            columns: ["assigned_worker_id"];
+            isOneToOne: false;
+            referencedRelation: "workers";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "jobs_branch_id_fkey";
+            columns: ["branch_id"];
+            isOneToOne: false;
+            referencedRelation: "branches";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "jobs_created_by_fkey";
+            columns: ["created_by"];
+            isOneToOne: false;
+            referencedRelation: "users";
+            referencedColumns: ["id"];
+          }
+        ];
+      };
+      workers: {
+        Row: {
+          hostname: string;
+          id: string;
+          last_heartbeat_at: string;
+          pid: number;
+          started_at: string;
+          status: string;
+        };
+        Insert: {
+          hostname: string;
+          id?: string;
+          last_heartbeat_at?: string;
+          pid: number;
+          started_at?: string;
+          status: string;
+        };
+        Update: {
+          hostname?: string;
+          id?: string;
+          last_heartbeat_at?: string;
+          pid?: number;
+          started_at?: string;
+          status?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: {
       [_ in never]: never;

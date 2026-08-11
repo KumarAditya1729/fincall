@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS public.jobs (
     updated_at timestamptz DEFAULT now()
 );
 
-CREATE INDEX idx_jobs_status_priority_next_run ON public.jobs (status, priority, next_run_at) WHERE status IN ('queued', 'retrying');
+CREATE INDEX IF NOT EXISTS idx_jobs_status_priority_next_run ON public.jobs (status, priority, next_run_at) WHERE status IN ('queued', 'retrying');
 
 -- 3. Job Logs table
 CREATE TABLE IF NOT EXISTS public.job_logs (
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS public.job_logs (
     created_at timestamptz DEFAULT now()
 );
 
-CREATE INDEX idx_job_logs_job_id ON public.job_logs(job_id);
+CREATE INDEX IF NOT EXISTS idx_job_logs_job_id ON public.job_logs(job_id);
 
 -- 4. Job Failures table (DLQ Stack Traces)
 CREATE TABLE IF NOT EXISTS public.job_failures (
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS public.job_failures (
 );
 
 -- Triggers
-CREATE TRIGGER set_jobs_updated_at 
+CREATE OR REPLACE TRIGGER set_jobs_updated_at 
 BEFORE UPDATE ON public.jobs 
 FOR EACH ROW EXECUTE FUNCTION public.trigger_set_updated_at();
 
@@ -75,24 +75,30 @@ ALTER TABLE public.job_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.job_failures ENABLE ROW LEVEL SECURITY;
 
 -- Admins and branch managers can read jobs
+DROP POLICY IF EXISTS "Admins and managers can see jobs" ON public.jobs;
 CREATE POLICY "Admins and managers can see jobs" ON public.jobs FOR SELECT
   USING (public.is_admin() OR branch_id IS NULL OR public.can_access_branch(branch_id));
 
 -- Admins and branch managers can insert jobs for their branch
+DROP POLICY IF EXISTS "Admins and managers can insert jobs" ON public.jobs;
 CREATE POLICY "Admins and managers can insert jobs" ON public.jobs FOR INSERT
   WITH CHECK (public.is_admin() OR branch_id IS NULL OR public.can_access_branch(branch_id));
 
 -- Admins and branch managers can update jobs
+DROP POLICY IF EXISTS "Admins and managers can update jobs" ON public.jobs;
 CREATE POLICY "Admins and managers can update jobs" ON public.jobs FOR UPDATE
   USING (public.is_admin() OR branch_id IS NULL OR public.can_access_branch(branch_id));
 
 -- Anyone who can see the job can see its logs
+DROP POLICY IF EXISTS "Can see job logs if can see job" ON public.job_logs;
 CREATE POLICY "Can see job logs if can see job" ON public.job_logs FOR SELECT
   USING (EXISTS (SELECT 1 FROM public.jobs j WHERE j.id = job_logs.job_id));
 
+DROP POLICY IF EXISTS "Can see job failures if can see job" ON public.job_failures;
 CREATE POLICY "Can see job failures if can see job" ON public.job_failures FOR SELECT
   USING (EXISTS (SELECT 1 FROM public.jobs j WHERE j.id = job_failures.job_id));
 
+DROP POLICY IF EXISTS "Super admins can see workers" ON public.workers;
 CREATE POLICY "Super admins can see workers" ON public.workers FOR SELECT
   USING (public.is_admin());
 
@@ -102,12 +108,15 @@ VALUES ('job_files', 'job_files', false)
 ON CONFLICT DO NOTHING;
 
 -- RLS for Storage (Authenticated users can upload/read)
+DROP POLICY IF EXISTS "Authenticated users can upload job files" ON storage.objects;
 CREATE POLICY "Authenticated users can upload job files" ON storage.objects FOR INSERT
   WITH CHECK (bucket_id = 'job_files' AND auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Authenticated users can read job files" ON storage.objects;
 CREATE POLICY "Authenticated users can read job files" ON storage.objects FOR SELECT
   USING (bucket_id = 'job_files' AND auth.role() = 'authenticated');
 
+DROP POLICY IF EXISTS "Authenticated users can update job files" ON storage.objects;
 CREATE POLICY "Authenticated users can update job files" ON storage.objects FOR UPDATE
   USING (bucket_id = 'job_files' AND auth.role() = 'authenticated');
 

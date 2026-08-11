@@ -31,7 +31,7 @@ export function TemplatesTab() {
                 </span>
               </td>
               <td className="px-6 py-4 font-mono text-xs">
-                {{ customer_name }}, {{ emi_amount }}
+                {"{{ customer_name }}"}, {"{{ emi_amount }}"}
               </td>
               <td className="px-6 py-4 text-right">
                 <button className="text-[#00E5FF] hover:underline">Edit</button>
@@ -45,7 +45,7 @@ export function TemplatesTab() {
                 </span>
               </td>
               <td className="px-6 py-4 font-mono text-xs">
-                {{ customer_name }}, {{ branch_name }}
+                {"{{ customer_name }}"}, {"{{ branch_name }}"}
               </td>
               <td className="px-6 py-4 text-right">
                 <button className="text-[#00E5FF] hover:underline">Edit</button>

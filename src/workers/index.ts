@@ -3,8 +3,8 @@ import http from "http";
 import os from "os";
 import { startQueueListener } from "./queue";
 
-const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const supabaseUrl = process.env["VITE_SUPABASE_URL"] || process.env["SUPABASE_URL"];
+const supabaseServiceKey = process.env["SUPABASE_SERVICE_ROLE_KEY"];
 
 if (!supabaseUrl || !supabaseServiceKey) {
   console.error("Missing VITE_SUPABASE_URL (or SUPABASE_URL) or SUPABASE_SERVICE_ROLE_KEY in env");
@@ -27,7 +27,7 @@ async function boot() {
   console.log(`[Worker] Booting on ${hostname}:${pid}`);
 
   // Start a dummy HTTP server to satisfy Render's port scan check for Web Services
-  const port = process.env.PORT || 10000;
+  const port = process.env["PORT"] || 10000;
   http
     .createServer((req, res) => {
       res.writeHead(200, { "Content-Type": "text/plain" });
@@ -77,7 +77,7 @@ async function boot() {
   await recoverStaleJobs();
 
   // Start polling the queue
-  await startQueueListener(workerId);
+  await startQueueListener(workerId as string);
 
   // Handle graceful shutdown
   const shutdown = async (signal: string) => {

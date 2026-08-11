@@ -10,7 +10,7 @@
     "preview": "vite preview",
     "lint": "eslint .",
     "format": "prettier --write .",
-    "worker": "bun run src/workers/index.ts"
+    "worker": "npx tsx --env-file=.env src/workers/index.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

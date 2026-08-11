@@ -7,7 +7,8 @@ export async function importCustomersHandler(
   log: (msg: string, meta?: Record<string, unknown>) => Promise<void>,
   updateProgress: (progress: number) => Promise<void>,
 ) {
-  const { filePath } = job.payload;
+  const payload = (job.payload || {}) as { filePath?: string };
+  const filePath = payload.filePath;
   if (!filePath) throw new Error("Missing filePath in payload");
 
   await log(`Downloading file from storage: ${filePath}`);
@@ -20,8 +21,8 @@ export async function importCustomersHandler(
 
   const arrayBuffer = await data.arrayBuffer();
   const workbook = xlsx.read(arrayBuffer, { type: "buffer" });
-  const sheetName = workbook.SheetNames[0];
-  const rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: "" });
+  const sheetName = workbook.SheetNames[0] as string;
+  const rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]!, { defval: "" });
 
   const totalRows = rows.length;
   await log(`Found ${totalRows} rows to import`);
@@ -70,7 +71,8 @@ export async function importLoansHandler(
   log: (msg: string, meta?: Record<string, unknown>) => Promise<void>,
   updateProgress: (progress: number) => Promise<void>,
 ) {
-  const { filePath } = job.payload;
+  const payload = (job.payload || {}) as { filePath?: string };
+  const filePath = payload.filePath;
   if (!filePath) throw new Error("Missing filePath in payload");
 
   await log(`Downloading file from storage: ${filePath}`);
@@ -83,8 +85,8 @@ export async function importLoansHandler(
 
   const arrayBuffer = await data.arrayBuffer();
   const workbook = xlsx.read(arrayBuffer, { type: "buffer" });
-  const sheetName = workbook.SheetNames[0];
-  const rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName], { defval: "" });
+  const sheetName = workbook.SheetNames[0] as string;
+  const rows = xlsx.utils.sheet_to_json(workbook.Sheets[sheetName]!, { defval: "" });
 
   const totalRows = rows.length;
   await log(`Found ${totalRows} rows to import`);

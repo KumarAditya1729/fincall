@@ -93,20 +93,27 @@ export async function fetchAdminMetrics(branchId: string | null): Promise<AdminD
 export async function fetchExecutiveMetrics(userId: string, branchId: string | null): Promise<ExecutiveDashboardMetrics> {
   const since = startOfTodayISO();
   const today = todayISO();
-  const branchFilter: Filters = branchId ? { branch_id: branchId } : {};
+  const userFilter: Filters = branchId ? { branch_id: branchId } : {};
+  userFilter.assigned_to = userId;
+
+  const callFilter: Filters = branchId ? { branch_id: branchId } : {};
+  callFilter.called_by = userId;
+
+  const followupFilter: Filters = branchId ? { branch_id: branchId } : {};
+  followupFilter.assigned_to = userId;
 
   const [assigned, calls, connected, pending, upcoming] = await Promise.all([
-    countRows("customers", branchFilter),
-    countRows("call_logs", branchFilter, [
+    countRows("customers", userFilter),
+    countRows("call_logs", callFilter, [
       { column: "called_at", op: "gte", value: since },
     ]),
-    countRows("call_logs", { ...branchFilter, is_connected: true }, [
+    countRows("call_logs", { ...callFilter, is_connected: true }, [
       { column: "called_at", op: "gte", value: since },
     ]),
-    countRows("followups", { ...branchFilter, status: "pending" }, [
+    countRows("followups", { ...followupFilter, status: "pending" }, [
       { column: "scheduled_date", op: "lte", value: today },
     ]),
-    countRows("followups", { ...branchFilter, status: "pending" }, [
+    countRows("followups", { ...followupFilter, status: "pending" }, [
       { column: "scheduled_date", op: "gt", value: today },
     ]),
   ]);
